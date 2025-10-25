@@ -3,6 +3,7 @@ import {
   ReminderFormatTypes,
   changeReminderFormat,
   kanbanPluginReminderFormat,
+  plainReminderFormat,
   reminderPluginReminderFormat,
   setReminderFormatConfig,
   tasksPluginReminderFormat,
@@ -312,6 +313,9 @@ export class Settings {
       .newGroup("Reminder Format - Kanban Plugin")
       .addSettings(reminderFormatSettings.enableKanbanPluginReminderFormat);
     this.settings
+      .newGroup("Reminder Format - Plain")
+      .addSettings(reminderFormatSettings.enablePlainReminderFormat);
+    this.settings
       .newGroup("Date/Time Display Format")
       .addSettings(
         this.yearMonthDisplayFormat,
@@ -343,6 +347,10 @@ export class Settings {
       ReminderFormatParameterKey.removeTagsForTasksPlugin,
       this.removeTagsForTasksPlugin,
     );
+    config.setParameter(
+        ReminderFormatParameterKey.autoCompleteTrigger,
+        this.autoCompleteTrigger,
+    );
     setReminderFormatConfig(config);
   }
 
@@ -358,6 +366,7 @@ class ReminderFormatSettings {
   enableReminderPluginReminderFormat: SettingModel<boolean, boolean>;
   enableTasksPluginReminderFormat: SettingModel<boolean, boolean>;
   enableKanbanPluginReminderFormat: SettingModel<boolean, boolean>;
+  enablePlainReminderFormat: SettingModel<boolean, boolean>;
 
   constructor(private settings: SettingTabModel) {
     this.enableReminderPluginReminderFormat =
@@ -367,6 +376,9 @@ class ReminderFormatSettings {
     );
     this.enableKanbanPluginReminderFormat = this.createUseReminderFormatSetting(
       kanbanPluginReminderFormat,
+    );
+    this.enablePlainReminderFormat = this.createUseReminderFormatSetting(
+      plainReminderFormat,
     );
   }
 

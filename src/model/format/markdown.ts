@@ -1,3 +1,6 @@
+import type { DateTime } from "model/time";
+import { TRIGGER_CONFIG } from "./trigger-config";
+
 /**
  * Represents TODO items in Markdown.
  *
@@ -61,9 +64,57 @@ export type TodoEdit = {
   body?: string;
 };
 
+export class TriggerLine {
+  constructor(
+    public lineIndex: number,
+    public line: string,
+    // public todo: Todo | null = null,
+    private prefix: string = "",
+    private suffix: string = "",
+) {}
+
+  // prefix: '- '
+  // timer: '(@..)'
+  // suffix: ' '
+  private static readonly regexp =
+    /^(?<prefix>.*?)(\(@(?<timer>.+?)\))(?<suffix>.*)$/;
+
+  static parse(lineIndex: number, line: string): TriggerLine | null {
+    const match = TriggerLine.regexp.exec(line);
+    if (match) {
+      return new TriggerLine(
+        lineIndex,
+        line,
+        match.groups!["prefix"]!,
+        match.groups!["suffix"]!,
+      );
+    }
+    return null;
+  }
+
+  setChecked(checked: boolean) {
+    if (checked) {
+      this.line = this.toMarkdown();
+    }
+  }
+
+  setNewDateTime(dateTime: DateTime) {
+    this.line = this.toMarkdown(dateTime);
+  }
+
+  toMarkdown(time: DateTime | null = null): string {
+    const autoCompleteTrigger = TRIGGER_CONFIG.getAutoCompleteTrigger();
+    if (!!time) {
+      return `${this.prefix}${autoCompleteTrigger}${time.toString()})${this.suffix}`;
+    }
+    return `${this.prefix.trimEnd()}${this.suffix}`;
+  }
+}
+
 export class MarkdownDocument {
   private lines: Array<string> = [];
   private todos: Array<Todo> = [];
+  private triggerLines: Array<TriggerLine> = [];
 
   constructor(
     public file: string,
@@ -75,16 +126,29 @@ export class MarkdownDocument {
   private parse(content: string) {
     this.lines = content.split("\n");
     this.todos = [];
+    this.triggerLines = [];
+    const autoCompleteTrigger = TRIGGER_CONFIG.getAutoCompleteTrigger();
     this.lines.forEach((line, lineIndex) => {
       const todo = Todo.parse(lineIndex, line);
       if (todo) {
         this.todos.push(todo);
+      }
+      // Check if line contains the autoCompleteTrigger and it's not a todo
+      if (!todo && autoCompleteTrigger && line.includes(autoCompleteTrigger)) {
+        const triggerLine = TriggerLine.parse(lineIndex, line);
+        if (triggerLine) {
+          this.triggerLines.push(triggerLine);
+        }
       }
     });
   }
 
   public getTodos(): Array<Todo> {
     return this.todos;
+  }
+
+  public getTriggerLines(): Array<TriggerLine> {
+    return this.triggerLines;
   }
 
   public insertTodo(lineIndex: number, todo: Todo) {
@@ -115,10 +179,22 @@ export class MarkdownDocument {
     return found;
   }
 
+  public getTriggerLine(lineIndex: number): TriggerLine | null {
+    const found = this.triggerLines.find((line) => line.lineIndex === lineIndex);
+    if (found == null) {
+      return null;
+    }
+    return found;
+  }
+
   private applyChanges() {
     // apply changes of TODO items to lines
     this.todos.forEach((todo) => {
       this.lines[todo.lineIndex] = todo.toMarkdown();
+    });
+    // apply changes of Trigger lines to lines
+    this.triggerLines.forEach((triggerLine) => {
+      this.lines[triggerLine.lineIndex] = triggerLine.line;
     });
   }
 

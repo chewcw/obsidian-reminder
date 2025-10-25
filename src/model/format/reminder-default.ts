@@ -6,7 +6,7 @@ import {
 } from "./reminder-base";
 import type { ReminderModel } from "./reminder-base";
 
-class DefaultReminderModel implements ReminderModel {
+export class DefaultReminderModel implements ReminderModel {
   public static readonly regexp =
     /^(?<title1>.*?)\(@(?<time>.+?)\)(?<title2>.*)$/;
 

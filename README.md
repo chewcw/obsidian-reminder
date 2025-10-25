@@ -1,5 +1,7 @@
 ## Obsidian Reminder Plugin
 
+> This fork added a new mode called "Plain mode", which is just a plain reminder instead of a TODO.  
+
 [Reminder plugin](https://uphy.github.io/obsidian-reminder/) for Obsidian. This plugin adds feature to manage markdown TODOs with reminder.
 
 ### Features

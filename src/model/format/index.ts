@@ -9,6 +9,7 @@ import { CompositeReminderFormat } from "./reminder-base";
 import { DefaultReminderFormat } from "./reminder-default";
 import { KanbanReminderFormat } from "./reminder-kanban-plugin";
 import { TasksPluginFormat } from "./reminder-tasks-plugin";
+import { PlainReminderFormat } from "./reminder-plain";
 
 const REMINDER_FORMAT = new CompositeReminderFormat();
 REMINDER_FORMAT.resetFormat([DefaultReminderFormat.instance]);
@@ -70,11 +71,19 @@ export const kanbanPluginReminderFormat = new ReminderFormatType(
   KanbanReminderFormat.instance,
   false,
 );
+export const plainReminderFormat = new ReminderFormatType(
+  "PlainReminderFormat",
+  "Plain reminder format",
+  "(@2021-09-08)",
+  PlainReminderFormat.instance,
+  false,
+);
 
 export const ReminderFormatTypes = [
   reminderPluginReminderFormat,
   tasksPluginReminderFormat,
   kanbanPluginReminderFormat,
+  plainReminderFormat,
 ];
 
 export { MarkdownDocument };
