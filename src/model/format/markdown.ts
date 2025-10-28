@@ -1,4 +1,5 @@
 import type { DateTime } from "model/time";
+import { DATE_TIME_FORMATTER } from "model/time";
 import { TRIGGER_CONFIG } from "./trigger-config";
 
 /**
@@ -104,8 +105,9 @@ export class TriggerLine {
 
   toMarkdown(time: DateTime | null = null): string {
     const autoCompleteTrigger = TRIGGER_CONFIG.getAutoCompleteTrigger();
+    const formattedTime = time ? DATE_TIME_FORMATTER.toString(time) : null;
     if (!!time) {
-      return `${this.prefix}${autoCompleteTrigger}${time.toString()})${this.suffix}`;
+      return `${this.prefix}${autoCompleteTrigger}${formattedTime})${this.suffix}`;
     }
     return `${this.prefix.trimEnd()}${this.suffix}`;
   }
